@@ -26,7 +26,7 @@ public class PublisherService {
     @Transactional
     public PublisherResponse createPublisher(PublisherRequest request){
         if (publisherRepository.existsByName(request.name())){
-            throw new DuplicateResourceException("Publisher", request.name());
+            throw new DuplicateResourceException("Publisher", "name", request.name());
         }
 
         Publisher savedPublisher = publisherRepository.save(publisherMapper.toEntity(request));
@@ -59,7 +59,7 @@ public class PublisherService {
         String previousPublisher = publisher.getName();
 
         if (!previousPublisher.equals(request.name()) && publisherRepository.existsByName(request.name())){
-            throw new DuplicateResourceException("Publisher", request.name());
+            throw new DuplicateResourceException("Publisher", "name", request.name());
         }
 
         publisher.setName(request.name());

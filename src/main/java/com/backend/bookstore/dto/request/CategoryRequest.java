@@ -9,7 +9,7 @@ public record CategoryRequest(
         @Size(max = 100, message = "Name must be at most 100 characters!")
         String name,
 
-        @Size(max = 500, message = "Description be at most 500 characters!")
+        @Size(max = 500, message = "Description must be at most 500 characters!")
         String description
 ) {
 }

@@ -26,7 +26,7 @@ public class CategoryService {
     @Transactional
     public CategoryResponse createCategory(CategoryRequest request){
         if (categoryRepository.existsByName(request.name())){
-            throw new DuplicateResourceException("Category", request.name());
+            throw new DuplicateResourceException("Category", "name", request.name());
         }
 
         Category saved = categoryRepository.save(categoryMapper.toEntity(request));
@@ -59,7 +59,7 @@ public class CategoryService {
         String previousName = existingCategory.getName();
 
         if (!previousName.equals(request.name()) && categoryRepository.existsByName(request.name())){
-            throw new DuplicateResourceException("Category", request.name());
+            throw new DuplicateResourceException("Category", "name", request.name());
         }
 
         existingCategory.setName(request.name());
