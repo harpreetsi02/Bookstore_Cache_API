@@ -9,10 +9,7 @@ import com.backend.bookstore.entity.Category;
 import com.backend.bookstore.entity.Publisher;
 import com.backend.bookstore.exception.*;
 import com.backend.bookstore.mapper.BookMapper;
-import com.backend.bookstore.repository.AuthorRepository;
-import com.backend.bookstore.repository.BookRepository;
-import com.backend.bookstore.repository.CategoryRepository;
-import com.backend.bookstore.repository.PublisherRepository;
+import com.backend.bookstore.repository.*;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -33,19 +30,22 @@ public class BookService {
     private final AuthorRepository authorRepository;
     private final PublisherRepository publisherRepository;
     private final BookMapper bookMapper;
+    private final ReviewRepository reviewRepository;
 
     public BookService(
             BookRepository bookRepository,
             CategoryRepository categoryRepository,
             AuthorRepository authorRepository,
             PublisherRepository publisherRepository,
-            BookMapper bookMapper
+            BookMapper bookMapper,
+            ReviewRepository reviewRepository
     ) {
         this.bookRepository = bookRepository;
         this.categoryRepository = categoryRepository;
         this.authorRepository = authorRepository;
         this.publisherRepository = publisherRepository;
         this.bookMapper = bookMapper;
+        this.reviewRepository = reviewRepository;
     }
 
     @CacheEvict(value = CacheNames.BOOKS_LIST, allEntries = true)
@@ -114,6 +114,7 @@ public class BookService {
         Book book =  bookRepository.findById(bookId)
                 .orElseThrow(() -> new BookNotFoundException(bookId));
 
+        reviewRepository.deleteByBook_Id(bookId);
         bookRepository.delete(book);
     }
 
