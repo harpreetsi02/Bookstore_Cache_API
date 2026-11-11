@@ -1,5 +1,6 @@
 package com.backend.bookstore.service;
 
+import com.backend.bookstore.config.CacheNames;
 import com.backend.bookstore.dto.request.BookRequest;
 import com.backend.bookstore.dto.response.BookResponse;
 import com.backend.bookstore.entity.Author;
@@ -47,7 +48,7 @@ public class BookService {
         this.bookMapper = bookMapper;
     }
 
-    @CacheEvict(value = "bookList", allEntries = true)
+    @CacheEvict(value = CacheNames.BOOKS_LIST, allEntries = true)
     @Transactional
     public BookResponse createBook(BookRequest request){
         if (bookRepository.existsByIsbn(request.isbn())){
@@ -64,7 +65,7 @@ public class BookService {
         return bookMapper.toResponse(savedBook);
     }
 
-    @Cacheable(value = "bookList", key = "'all'")
+    @Cacheable(value = CacheNames.BOOKS_LIST, key = "'all'")
     @Transactional(readOnly = true)
     public List<BookResponse> getAllBooks(){
         return bookRepository.findAll()
@@ -73,7 +74,7 @@ public class BookService {
                 .toList();
     }
 
-    @Cacheable(value = "books", key = "#bookId")
+    @Cacheable(value = CacheNames.BOOKS, key = "#bookId")
     @Transactional(readOnly = true)
     public BookResponse getBookById(Long bookId){
         Book book = bookRepository.findById(bookId)
@@ -83,8 +84,8 @@ public class BookService {
     }
 
     @Caching(
-            put = @CachePut(value = "books", key = "#bookId"),
-            evict = @CacheEvict(value = "bookList", allEntries = true)
+            put = @CachePut(value = CacheNames.BOOKS, key = "#bookId"),
+            evict = @CacheEvict(value = CacheNames.BOOKS_LIST, allEntries = true)
     )
     @Transactional
     public BookResponse updateBook(Long bookId, BookRequest request){
@@ -105,8 +106,8 @@ public class BookService {
     }
 
     @Caching(evict = {
-            @CacheEvict(value = "books", key = "#bookId"),
-            @CacheEvict(value = "bookList", allEntries = true)
+            @CacheEvict(value = CacheNames.BOOKS, key = "#bookId"),
+            @CacheEvict(value = CacheNames.BOOKS_LIST, allEntries = true)
     })
     @Transactional
     public void deleteBook(Long bookId){
