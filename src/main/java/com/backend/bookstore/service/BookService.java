@@ -15,6 +15,7 @@ import com.backend.bookstore.repository.PublisherRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +47,7 @@ public class BookService {
         this.bookMapper = bookMapper;
     }
 
+    @CacheEvict(value = "bookList", allEntries = true)
     @Transactional
     public BookResponse createBook(BookRequest request){
         if (bookRepository.existsByIsbn(request.isbn())){
@@ -62,6 +64,7 @@ public class BookService {
         return bookMapper.toResponse(savedBook);
     }
 
+    @Cacheable(value = "bookList", key = "'all'")
     @Transactional(readOnly = true)
     public List<BookResponse> getAllBooks(){
         return bookRepository.findAll()
@@ -79,7 +82,10 @@ public class BookService {
         return bookMapper.toResponse(book);
     }
 
-    @CachePut(value = "books", key = "#bookId")
+    @Caching(
+            put = @CachePut(value = "books", key = "#bookId"),
+            evict = @CacheEvict(value = "bookList", allEntries = true)
+    )
     @Transactional
     public BookResponse updateBook(Long bookId, BookRequest request){
         Book book = bookRepository.findById(bookId)
@@ -98,7 +104,10 @@ public class BookService {
         return bookMapper.toResponse(book);
     }
 
-    @CacheEvict(value = "books", key = "#bookId")
+    @Caching(evict = {
+            @CacheEvict(value = "books", key = "#bookId"),
+            @CacheEvict(value = "bookList", allEntries = true)
+    })
     @Transactional
     public void deleteBook(Long bookId){
         Book book =  bookRepository.findById(bookId)
