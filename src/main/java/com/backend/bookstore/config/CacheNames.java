@@ -10,4 +10,6 @@ public final class CacheNames {
     public static final String CATEGORY_LIST = "categoryList";
     public static final String PUBLISHERS = "publishers";
     public static final String PUBLISHER_LIST = "publisherList";
+    public static final String BOOK_RATINGS = "bookRatings";
+    public static final String TOP_RATED = "topRatedBooks";
 }

@@ -1,5 +1,6 @@
 package com.backend.bookstore.service;
 
+import com.backend.bookstore.config.CacheNames;
 import com.backend.bookstore.dto.request.ReviewRequest;
 import com.backend.bookstore.dto.response.BookRatingResponse;
 import com.backend.bookstore.dto.response.BookRatingSummary;
@@ -10,6 +11,9 @@ import com.backend.bookstore.exception.BookNotFoundException;
 import com.backend.bookstore.mapper.ReviewMapper;
 import com.backend.bookstore.repository.BookRepository;
 import com.backend.bookstore.repository.ReviewRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +37,10 @@ public class ReviewService {
         this.reviewMapper = reviewMapper;
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = CacheNames.BOOK_RATINGS, key = "#bookId"),
+            @CacheEvict(value = CacheNames.TOP_RATED, allEntries = true)
+    })
     @Transactional
     public ReviewResponse createReview(Long bookId, ReviewRequest request) {
         Book book = bookRepository.findById(bookId)
@@ -53,6 +61,7 @@ public class ReviewService {
                 .map(reviewMapper::toResponse);
     }
 
+    @Cacheable(value = CacheNames.BOOK_RATINGS, key = "#bookId")
     @Transactional(readOnly = true)
     public BookRatingResponse getBookRating(Long bookId) {
         if (!bookRepository.existsById(bookId)) {
@@ -67,6 +76,7 @@ public class ReviewService {
         return new BookRatingResponse(bookId, rounded, count);
     }
 
+    @Cacheable(value = CacheNames.TOP_RATED, key = "#minReviews + '-' + #limit")
     @Transactional(readOnly = true)
     public List<BookRatingSummary> getTopRatedBooks(long minReviews, int limit) {
         long safeMinReviews = Math.max(minReviews, 1);

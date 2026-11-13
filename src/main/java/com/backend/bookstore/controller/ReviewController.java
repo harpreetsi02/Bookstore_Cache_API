@@ -74,6 +74,8 @@ public class ReviewController {
             @RequestParam(defaultValue = "2") long minReviews,
             @RequestParam(defaultValue = "5") int limit
     ) {
-        return ResponseEntity.ok(reviewService.getTopRatedBooks(minReviews, limit));
+        long safeMin = Math.clamp(minReviews, 1, 100);
+        int safeLimit = Math.clamp(limit, 1, 50);
+        return ResponseEntity.ok(reviewService.getTopRatedBooks(safeMin, safeLimit));
     }
 }

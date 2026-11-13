@@ -5,6 +5,7 @@ import com.backend.bookstore.entity.Review;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -17,6 +18,10 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     long countByBook_Id(Long bookId);
 
     void deleteByBook_Id(Long bookId);
+
+    @Modifying
+    @Query("delete from Review r where r.book.id = :bookId")
+    void deleteAllByBookId(@Param("bookId") Long bookId);
 
     @Query("select avg(r.rating) from Review r where r.book.id = :bookId")
     Double findAverageRatingByBookId(@Param("bookId") Long bookId);

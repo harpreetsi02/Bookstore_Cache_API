@@ -107,14 +107,16 @@ public class BookService {
 
     @Caching(evict = {
             @CacheEvict(value = CacheNames.BOOKS, key = "#bookId"),
-            @CacheEvict(value = CacheNames.BOOKS_LIST, allEntries = true)
+            @CacheEvict(value = CacheNames.BOOKS_LIST, allEntries = true),
+            @CacheEvict(value = CacheNames.BOOK_RATINGS, key = "#bookId"),
+            @CacheEvict(value = CacheNames.TOP_RATED, allEntries = true)
     })
     @Transactional
     public void deleteBook(Long bookId){
         Book book =  bookRepository.findById(bookId)
                 .orElseThrow(() -> new BookNotFoundException(bookId));
 
-        reviewRepository.deleteByBook_Id(bookId);
+        reviewRepository.deleteAllByBookId(bookId);
         bookRepository.delete(book);
     }
 
